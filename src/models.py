@@ -5,38 +5,24 @@ class Product:
         self.__price = price
         self.quantity = quantity
 
-    @classmethod
-    def new_product(cls, product_data: dict, products_list=None):
-        """Создаёт новый товар с проверкой дубликатов"""
-        if products_list:
-            for prod in products_list:
-                if prod.name.lower() == product_data["name"].lower():
-                    prod.quantity += product_data["quantity"]
-                    prod.price = max(prod.price, product_data["price"])
-                    return prod
-        return cls(**product_data)
+    def __str__(self):
+        return f"{self.name}, {self.price} руб. Остаток: {self.quantity} шт."
+
+    def __add__(self, other):
+        if not isinstance(other, Product):
+            raise TypeError("Можно складывать только объекты Product")
+        return (self.price * self.quantity) + (other.price * other.quantity)
 
     @property
     def price(self):
-        """Геттер цены"""
         return self.__price
 
     @price.setter
-    def price(self, new_price):
-        """Сеттер цены с проверками"""
-        if new_price <= 0:
+    def price(self, value):
+        if value <= 0:
             print("Цена не должна быть нулевая или отрицательная")
-            return
-
-        if hasattr(self, "_Product__price") and new_price < self.__price:
-            confirm = input(
-                f"Цена снижается с {self.__price} до {new_price}. Подтвердите (y/n): "
-            )
-            if confirm.lower() != "y":
-                print("Изменение цены отменено")
-                return
-
-        self.__price = new_price
+        else:
+            self.__price = value
 
 
 class Category:
@@ -50,24 +36,35 @@ class Category:
         Category.total_categories += 1
         Category.total_products += len(products)
 
+    def __str__(self):
+        total_quantity = sum(product.quantity for product in self.__products)
+        return f"{self.name}, количество продуктов: {total_quantity} шт."
+
+    def __iter__(self):
+        return CategoryIterator(self.__products)
+
+    @property
+    def products(self):
+        return "\n".join(str(product) for product in self.__products)
+
     def add_product(self, product):
-        """Добавляет товар в категорию"""
         if not isinstance(product, Product):
             raise TypeError("Можно добавлять только объекты класса Product")
         self.__products.append(product)
         Category.total_products += 1
 
-    @property
-    def products(self):
-        """Геттер для форматированного вывода товаров"""
-        return "\n".join(
-            [
-                f"{p.name}, {p.price} руб. Остаток: {p.quantity} шт."
-                for p in self.__products
-            ]
-        )
 
-    @property
-    def product_count(self):
-        """Количество товаров в категории (для совместимости)"""
-        return len(self.__products)
+class CategoryIterator:
+    def __init__(self, products):
+        self.products = products
+        self.index = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.index < len(self.products):
+            product = self.products[self.index]
+            self.index += 1
+            return product
+        raise StopIteration
