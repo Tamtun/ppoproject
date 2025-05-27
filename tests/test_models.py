@@ -1,76 +1,86 @@
 import pytest
-from src.models import Product, Category
-
-@pytest.fixture(autouse=True)
-def reset_category_products():
-    """Сбрасывает счетчик total_products перед каждым тестом."""
-    Category.total_products = 0
-
-@pytest.fixture
-def sample_product():
-    return Product("Товар1", "Описание товара", 100.0, 5)
-
-@pytest.fixture
-def another_product():
-    return Product("Товар2", "Описание другого товара", 200.0, 3)
-
-@pytest.fixture
-def sample_category(sample_product, another_product):
-    return Category("Категория1", "Описание категории", [sample_product, another_product])
-
-def test_category_add_invalid_product(sample_category):
-    """Проверяем, что передача некорректного объекта вызывает TypeError."""
-    with pytest.raises(TypeError, match="Можно добавлять только объекты класса Product"):
-        sample_category.add_product("не продукт")  # Передаем строку вместо объекта Product
+from src.models import Product, Smartphone, LawnGrass, Category
 
 
-def test_category_iteration(sample_category):
-    """Проверяем, что объект Category можно итерировать."""
-    iterator = iter(sample_category)
-    assert hasattr(iterator, "__next__")  # Проверяем, что у объекта есть метод __next__
+class TestProduct:
+    def test_product_init(self):
+        product = Product("Телефон", "Смартфон", 50000.0, 10)
+        assert product.name == "Телефон"
+        assert product.price == 50000.0
+        assert product.quantity == 10
 
-    product_names = [product.name for product in iterator]
-    assert product_names == ["Товар1", "Товар2"]
+    def test_price_setter(self):
+        product = Product("Телефон", "Смартфон", 50000.0, 10)
+        product.price = 60000.0
+        assert product.price == 60000.0
+        product.price = -100
+        assert product.price == 60000.0
 
-def test_product_initialization(sample_product):
-    assert sample_product.name == "Товар1"
-    assert sample_product.description == "Описание товара"
-    assert sample_product.price == 100.0
-    assert sample_product.quantity == 5
+    def test_str_representation(self):
+        product = Product("Телефон", "Смартфон", 50000.0, 10)
+        assert str(product) == "Телефон, 50000.0 руб. Остаток: 10 шт."
 
-def test_product_str(sample_product):
-    assert str(sample_product) == "Товар1, 100.0 руб. Остаток: 5 шт."
 
-def test_product_addition(sample_product, another_product):
-    assert sample_product + another_product == (100.0 * 5) + (200.0 * 3)
+class TestSmartphone:
+    def test_smartphone_creation(self):
+        phone = Smartphone("iPhone", "Флагман", 100000, 5, 95.5, "15 Pro", 256, "Black")
+        assert phone.name == "iPhone"
+        assert phone.model == "15 Pro"
+        assert phone.memory == 256
+        assert isinstance(phone, Product)
 
-    with pytest.raises(TypeError):
-        sample_product + "не продукт"
 
-def test_product_price_setter(sample_product):
-    sample_product.price = 150.0
-    assert sample_product.price == 150.0
+class TestLawnGrass:
+    def test_lawn_grass_creation(self):
+        grass = LawnGrass("Трава", "Газонная", 500, 20, "Россия", "14 дней", "Зелёная")
+        assert grass.country == "Россия"
+        assert grass.germination_period == "14 дней"
+        assert isinstance(grass, Product)
 
-    sample_product.price = -50.0
-    assert sample_product.price != -50.0  # Проверяем, что цена не изменилась на отрицательную
 
-def test_category_initialization(sample_category):
-    assert sample_category.name == "Категория1"
-    assert sample_category.description == "Описание категории"
-    assert len(sample_category.products.split("\n")) == 2
+class TestCategory:
+    def setup_class(self):
+        Category.total_categories = 0
+        Category.total_products = 0
 
-def test_category_str(sample_category):
-    assert str(sample_category) == "Категория1, количество продуктов: 8 шт."
+    def test_category_creation(self):
+        p = Product("Товар", "Описание", 100, 5)
+        category = Category("Категория", "Описание", [p])
+        assert category.name == "Категория"
+        assert category.product_count == 1
 
-def test_category_add_product(sample_category):
-    new_product = Product("Товар3", "Еще один товар", 300.0, 2)
-    initial_count = Category.total_products  # Запоминаем количество продуктов до добавления
-    sample_category.add_product(new_product)
+    def test_add_product(self):
+        category = Category("Категория", "Описание", [])
+        p = Product("Товар", "Описание", 100, 5)
+        category.add_product(p)
+        assert category.product_count == 1
 
-    assert "Товар3" in sample_category.products
-    assert Category.total_products == initial_count + 1  # Проверяем, что счетчик увеличился корректно
+    def test_add_invalid_product(self):
+        category = Category("Категория", "Описание", [])
+        with pytest.raises(TypeError):
+            category.add_product("Не продукт")
 
-def test_category_iterator(sample_category):
-    product_names = [product.name for product in sample_category]
-    assert product_names == ["Товар1", "Товар2"]
+    def test_str_representation(self):
+        p1 = Product("Товар 1", "Описание", 100, 5)
+        p2 = Product("Товар 2", "Описание", 200, 3)
+        category = Category("Категория", "Описание", [p1, p2])
+        assert str(category) == "Категория, количество продуктов: 8 шт."
 
+    def test_category_iteration(self):
+        p1 = Product("Товар 1", "Описание", 100, 5)
+        p2 = Product("Товар 2", "Описание", 200, 3)
+        category = Category("Категория", "Описание", [p1, p2])
+        assert list(category) == [p1, p2]
+
+
+class TestAddition:
+    def test_valid_addition(self):
+        p1 = Smartphone("Phone1", "", 1000, 2, 90.0, "X", 128, "Black")
+        p2 = Smartphone("Phone2", "", 2000, 3, 95.0, "Y", 256, "White")
+        assert p1 + p2 == 1000 * 2 + 2000 * 3
+
+    def test_invalid_addition(self):
+        phone = Smartphone("Phone", "", 1000, 2, 90.0, "X", 128, "Black")
+        grass = LawnGrass("Grass", "", 500, 3, "Россия", "14 дней", "Зелёная")
+        with pytest.raises(TypeError):
+            phone + grass

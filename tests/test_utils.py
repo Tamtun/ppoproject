@@ -12,17 +12,32 @@ def sample_json(tmp_path):
             "name": "Категория1",
             "description": "Описание категории1",
             "products": [
-                {"name": "Товар1", "description": "Описание1", "price": 100.0, "quantity": 5},
-                {"name": "Товар2", "description": "Описание2", "price": 200.0, "quantity": 3}
-            ]
+                {
+                    "name": "Товар1",
+                    "description": "Описание1",
+                    "price": 100.0,
+                    "quantity": 5,
+                },
+                {
+                    "name": "Товар2",
+                    "description": "Описание2",
+                    "price": 200.0,
+                    "quantity": 3,
+                },
+            ],
         },
         {
             "name": "Категория2",
             "description": "Описание категории2",
             "products": [
-                {"name": "Товар3", "description": "Описание3", "price": 300.0, "quantity": 2}
-            ]
-        }
+                {
+                    "name": "Товар3",
+                    "description": "Описание3",
+                    "price": 300.0,
+                    "quantity": 2,
+                }
+            ],
+        },
     ]
 
     file_path = tmp_path / "test_data.json"
