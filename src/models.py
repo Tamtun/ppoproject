@@ -5,14 +5,6 @@ class Product:
         self.__price = price
         self.quantity = quantity
 
-    def __str__(self):
-        return f"{self.name}, {self.price} руб. Остаток: {self.quantity} шт."
-
-    def __add__(self, other):
-        if not isinstance(other, Product):
-            raise TypeError("Можно складывать только объекты Product")
-        return (self.price * self.quantity) + (other.price * other.quantity)
-
     @property
     def price(self):
         return self.__price
@@ -23,6 +15,50 @@ class Product:
             print("Цена не должна быть нулевая или отрицательная")
         else:
             self.__price = value
+
+    def __str__(self):
+        return f"{self.name}, {self.price} руб. Остаток: {self.quantity} шт."
+
+    def __add__(self, other):
+        if type(self) != type(other):
+            raise TypeError("Нельзя складывать товары разных типов")
+        return self.price * self.quantity + other.price * other.quantity
+
+
+class Smartphone(Product):
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        price: float,
+        quantity: int,
+        efficiency: float,
+        model: str,
+        memory: int,
+        color: str,
+    ):
+        super().__init__(name, description, price, quantity)
+        self.efficiency = efficiency
+        self.model = model
+        self.memory = memory
+        self.color = color
+
+
+class LawnGrass(Product):
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        price: float,
+        quantity: int,
+        country: str,
+        germination_period: str,
+        color: str,
+    ):
+        super().__init__(name, description, price, quantity)
+        self.country = country
+        self.germination_period = germination_period
+        self.color = color
 
 
 class Category:
@@ -36,35 +72,25 @@ class Category:
         Category.total_categories += 1
         Category.total_products += len(products)
 
-    def __str__(self):
-        total_quantity = sum(product.quantity for product in self.__products)
-        return f"{self.name}, количество продуктов: {total_quantity} шт."
-
-    def __iter__(self):
-        return CategoryIterator(self.__products)
+    def add_product(self, product):
+        if not isinstance(product, Product):
+            raise TypeError(
+                "Можно добавлять только объекты Product или его наследников"
+            )
+        self.__products.append(product)
+        Category.total_products += 1
 
     @property
     def products(self):
         return "\n".join(str(product) for product in self.__products)
 
-    def add_product(self, product):
-        if not isinstance(product, Product):
-            raise TypeError("Можно добавлять только объекты класса Product")
-        self.__products.append(product)
-        Category.total_products += 1
+    @property
+    def product_count(self):
+        return len(self.__products)
 
-
-class CategoryIterator:
-    def __init__(self, products):
-        self.products = products
-        self.index = 0
+    def __str__(self):
+        total = sum(p.quantity for p in self.__products)
+        return f"{self.name}, количество продуктов: {total} шт."
 
     def __iter__(self):
-        return self
-
-    def __next__(self):
-        if self.index < len(self.products):
-            product = self.products[self.index]
-            self.index += 1
-            return product
-        raise StopIteration
+        return iter(self.__products)
