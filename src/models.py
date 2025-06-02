@@ -21,10 +21,7 @@ class ProductMixin:
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        logger = logging.getLogger("product_mixin")
-        logger.info(
-            f"Создан объект {self.__class__.__name__} с параметрами: {self.__dict__}"
-        )
+        print(f"Создан объект {self.__class__.__name__} с параметрами: {self.__dict__}")
 
 
 class Product(BaseProduct, ProductMixin):

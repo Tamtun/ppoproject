@@ -2,7 +2,9 @@ import json
 from pathlib import Path
 from typing import List
 from .models import Product
-from src.category import Category
+
+# from src.category import Category
+from src.category import Category  # Вместо ".category"
 
 
 def load_categories_from_json(file_path: str | Path) -> List[Category]:

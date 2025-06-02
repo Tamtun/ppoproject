@@ -1,5 +1,5 @@
-from models import Product
-from category import Category
+from src.models import Product
+from src.category import Category
 
 if __name__ == "__main__":
     product1 = Product(
@@ -13,39 +13,27 @@ if __name__ == "__main__":
     print(product1.price)
     print(product1.quantity)
 
-    print(product2.name)
-    print(product2.description)
-    print(product2.price)
-    print(product2.quantity)
-
-    print(product3.name)
-    print(product3.description)
-    print(product3.price)
-    print(product3.quantity)
-
     category1 = Category(
-        "Смартфоны",
-        "Смартфоны, как средство не только коммуникации, но и получения дополнительных функций для удобства жизни",
-        [product1, product2, product3],
+        "Смартфоны", "Смартфоны для удобства жизни", [product1, product2, product3]
     )
 
     print(category1.name == "Смартфоны")
     print(category1.description)
-    print(len(list(category1)))
+    print(len(category1.products))  # Теперь возвращает список, а не строку
     print(Category.total_categories)
     print(Category.total_products)
 
     product4 = Product('55" QLED 4K', "Фоновая подсветка", 123000.0, 7)
     category2 = Category(
-        "Телевизоры",
-        "Современный телевизор, который позволяет наслаждаться просмотром, станет вашим другом и помощником",
-        [product4],
+        "Телевизоры", "Современные телевизоры для комфорта", [product4]
     )
 
     print(category2.name)
     print(category2.description)
-    print(len(list(category2)))
-    print("\n".join(str(product) for product in category2))
+    print(len(category2.products))
+    print(
+        "\n".join(str(product) for product in category2.products)
+    )  # Теперь работает правильно
 
     print(Category.total_categories)
     print(Category.total_products)
