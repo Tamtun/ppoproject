@@ -14,6 +14,13 @@ class TestProduct:
         assert product.name == "Телефон"
         assert isinstance(product, BaseProduct)
 
+    def test_product_zero_quantity(self):
+        """Проверяет, выбрасывается ли ValueError при нулевом количестве товара."""
+        with pytest.raises(
+            ValueError, match="Товар с нулевым количеством не может быть добавлен"
+        ):
+            Product("Бракованный товар", "Описание", 1000.0, 0)
+
 
 class TestSmartphone:
     def test_smartphone_creation(self):
