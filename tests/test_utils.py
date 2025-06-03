@@ -1,7 +1,6 @@
 import pytest
 import json
-from pathlib import Path
-from src.utils import load_categories_from_json, Category, Product
+from src.utils import load_categories_from_json, Category
 
 
 @pytest.fixture
@@ -57,21 +56,21 @@ def test_load_categories_from_json(sample_json):
 
     assert categories[0].name == "Категория1"
     assert categories[0].description == "Описание категории1"
-    assert len(categories[0].products.split("\n")) == 2
+    assert len(categories[0].products) == 2
 
     assert categories[1].name == "Категория2"
     assert categories[1].description == "Описание категории2"
-    assert len(categories[1].products.split("\n")) == 1
+    assert len(categories[1].products) == 1  # Убрали split("\n")
 
 
 def test_product_attributes(sample_json):
     """Проверяет правильность данных товаров внутри категорий."""
     categories = load_categories_from_json(sample_json)
 
-    product1 = categories[0].products.split("\n")[0]
-    product2 = categories[0].products.split("\n")[1]
-    product3 = categories[1].products.split("\n")[0]
+    product1 = categories[0].products[0]  # Теперь просто берем объект из списка
+    product2 = categories[0].products[1]
+    product3 = categories[1].products[0]
 
-    assert "Товар1" in product1
-    assert "Товар2" in product2
-    assert "Товар3" in product3
+    assert product1.name == "Товар1"
+    assert product2.name == "Товар2"
+    assert product3.name == "Товар3"
